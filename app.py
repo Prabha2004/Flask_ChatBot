@@ -47,7 +47,7 @@ def chatbot():
         }
 
         # Make request to Azure AI Foundry
-        response = requests.post(f"{AZURE_ENDPOINT}/v1/inference", headers=HEADERS, json=payload)
+        response = requests.post(f"{AZURE_ENDPOINT}/chat/completions", headers=HEADERS, json=payload)
 
         if response.status_code == 200:
             modified_code = response.json().get("output", "No output generated")
