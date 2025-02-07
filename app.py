@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
@@ -27,18 +27,19 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chatbot():
     try:
-        data = request.json
-
-        # Validate request data
-        if not data or "prompt" not in data or "backend_context" not in data or "page_code" not in data:
-            return jsonify({"error": "Invalid request. 'prompt', 'backend_context', and 'page_code' are required."}), 400
-
-        user_prompt = data.get("prompt", "").strip()
-        backend_context = data.get("backend_context", "").strip()
-        page_code = data.get("page_code", "").strip()
+        user_prompt = request.form.get("prompt", "").strip()
+        backend_context_file = request.files.get("backend_context")
+        page_code_file = request.files.get("page_code")
 
         if not user_prompt:
             return jsonify({"error": "Prompt cannot be empty."}), 400
+
+        if not backend_context_file or not page_code_file:
+            return jsonify({"error": "Both 'backend_context' and 'page_code' files are required."}), 400
+
+        # Read file contents
+        backend_context = backend_context_file.read().decode("utf-8")
+        page_code = page_code_file.read().decode("utf-8")
 
         # Construct request payload
         payload = {
